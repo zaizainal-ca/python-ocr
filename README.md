@@ -185,7 +185,7 @@ You can use **Jenkins** to automate the build and deployment process to your EC2
 1. Create a new project of type **Freestyle project**.
 2. In the **Source Code Management** section:
    - Select **Git**.
-   - **Repository URL**: `https://github.com/zaizainal-ca/python-ocr.git`
+   - **Repository URL**: `https://github.com/techcompasia/compasia-python-ocr.git`
    - **Credentials**: Add or select your GitHub credentials/token.
    - **Branch Specifier**: Set to `*/main` (instead of `*/master`).
 3. In the **Build Steps** section, choose **Execute shell** and enter the following script:
