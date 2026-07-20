@@ -49,7 +49,7 @@ This microservice is built using **FastAPI** and **PaddleOCR** to extract inform
       "ic_number": "000000-00-0000",
       "name": "JOHN DOE ANAK RICHARD",
       "gender": "LELAKI",
-      "religion": "TIADA",
+      "religion": null,
       "citizenship": "WARGANEGARA",
       "state": "WILAYAH PERSEKUTUAN KUALA LUMPUR",
       "address": [
