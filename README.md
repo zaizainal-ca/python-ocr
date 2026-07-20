@@ -204,7 +204,7 @@ You can use **Jenkins** to automate the build and deployment process to your EC2
 
    # 3. Build and run the container using docker-compose on the UAT server
    ssh ubuntu@$SERVER_IP "cd /home/ubuntu/rp-cam-project/rp-python-ocr; \
-           docker compose up -d --build --force-recreate python-ocr; \
+           ROOT_PATH=/python-ocr docker compose up -d --build --force-recreate python-ocr; \
            docker image prune -f;"
    ```
 

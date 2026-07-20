@@ -8,7 +8,10 @@ from parser import parse_mykad
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-app = FastAPI(title="MyKad OCR API", version="1.0")
+import os
+
+root_path = os.getenv("ROOT_PATH", "")
+app = FastAPI(title="MyKad OCR API", version="1.0", root_path=root_path)
 
 # Enable CORS for frontend or external servers
 app.add_middleware(
