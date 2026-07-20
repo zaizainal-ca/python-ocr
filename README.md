@@ -46,18 +46,17 @@ This microservice is built using **FastAPI** and **PaddleOCR** to extract inform
   {
     "success": true,
     "data": {
-      "ic_number": "970513-03-5311",
-      "name": "CHE MOHD SAFWAN BIN CHE ISMAIL",
+      "ic_number": "000000-00-0000",
+      "name": "JOHN DOE ANAK RICHARD",
       "gender": "LELAKI",
-      "religion": "ISLAM",
+      "religion": "TIADA",
       "citizenship": "WARGANEGARA",
-      "state": "PERAK",
+      "state": "WILAYAH PERSEKUTUAN KUALA LUMPUR",
       "address": [
-        "NO 714",
-        "KUARTERS GURU",
-        "SMK RAJA PERMAISURI BAINUN",
-        "30020 IPOH",
-        "PERAK"
+        "123 JALAN AMPANG",
+        "KUALA LUMPUR CITY CENTRE",
+        "50450 KUALA LUMPUR",
+        "WILAYAH PERSEKUTUAN KUALA LUMPUR"
       ]
     }
   }
@@ -165,26 +164,26 @@ AWS App Runner is a fully managed service that makes it easy to deploy container
    ```
 3. Ensure port `8000` is open in the EC2 instance's Security Group.
 
-#### Jenkins CI/CD Automation (Otomatisasi Deployment)
-Anda bisa menggunakan **Jenkins** untuk mengotomatiskan proses build dan deployment ke server EC2 setiap kali ada pembaruan kode.
+#### Jenkins CI/CD Automation (Deployment Automation)
+You can use **Jenkins** to automate the build and deployment process to your EC2 server whenever there are code updates.
 
-**Langkah Konfigurasi di Jenkins:**
-1. Buat project baru bernomor jenis **Freestyle project**.
-2. Pada bagian **Source Code Management**, hubungkan ke Git repository project ini.
-3. Pada bagian **Build Steps**, pilih **Execute shell** dan masukkan script berikut:
+**Jenkins Configuration Steps:**
+1. Create a new project of type **Freestyle project**.
+2. In the **Source Code Management** section, connect it to this project's Git repository.
+3. In the **Build Steps** section, choose **Execute shell** and enter the following script:
    ```bash
-   # 1. Hentikan dan hapus kontainer lama jika sedang berjalan
+   # 1. Stop and remove the existing container if it is running
    if [ "$(docker ps -aq -f name=mykad-ocr-app)" ]; then
        echo "Stopping and removing existing container..."
        docker stop mykad-ocr-app
        docker rm mykad-ocr-app
    fi
 
-   # 2. Build Docker Image baru berdasarkan Dockerfile
+   # 2. Build a new Docker image from the Dockerfile
    echo "Building new image..."
    docker build -t mykad-ocr-app .
 
-   # 3. Jalankan container baru di background (port 8000, auto-restart)
+   # 3. Run the new container in the background (port 8000, auto-restart)
    echo "Running new container..."
    docker run -d -p 8000:8000 \
        --name mykad-ocr-app \
@@ -192,7 +191,7 @@ Anda bisa menggunakan **Jenkins** untuk mengotomatiskan proses build dan deploym
        -e PYTHONUNBUFFERED=1 \
        mykad-ocr-app
 
-   # 4. Hapus sisa-sisa image lama agar disk penyimpanan EC2 tidak penuh
+   # 4. Clean up old dangling images to prevent the EC2 disk from filling up
    echo "Cleaning up dangling images..."
    docker image prune -f
    ```
