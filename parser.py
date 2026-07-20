@@ -140,5 +140,69 @@ def parse_mykad(ocr_result):
         address_lines.append(mykad_data["state"])
         
     mykad_data["address"] = address_lines
+
+    # --- Enhanced Address Parsing ---
+    # 1. Full Address
+    full_address = ", ".join(address_lines)
+    mykad_data["full_address"] = full_address
+
+    # 2. Extract Postcode and City
+    postcode = None
+    city = None
+    postcode_line_idx = -1
+    
+    postcode_pattern = re.compile(r'\b\d{5}\b')
+    for idx, line in enumerate(address_lines):
+        match = postcode_pattern.search(line)
+        if match:
+            postcode = match.group(0)
+            postcode_line_idx = idx
+            # City is the rest of the line (excluding the postcode)
+            city_part = line.replace(postcode, "").strip(" ,-")
+            if city_part:
+                city = city_part
+            break
+            
+    mykad_data["postcode"] = postcode
+    mykad_data["city"] = city
+
+    # 3. Extract Address 1 and Address 2
+    street_lines = []
+    for idx, line in enumerate(address_lines):
+        line_upper = line.upper()
+        # Skip the state line
+        if mykad_data["state"] and mykad_data["state"] == line_upper:
+            continue
+        # Skip the postcode line (usually containing postcode + city)
+        if idx == postcode_line_idx:
+            continue
+        street_lines.append(line)
+        
+    # If no street lines found, fallback to using the postcode line as address_1
+    if not street_lines and postcode_line_idx != -1:
+        street_lines.append(address_lines[postcode_line_idx])
+        
+    address_1 = ""
+    address_2 = ""
+    
+    if len(street_lines) == 1:
+        address_1 = street_lines[0]
+        if postcode_line_idx != -1:
+            address_2 = address_lines[postcode_line_idx]
+    elif len(street_lines) >= 2:
+        # Split street lines in half to populate address_1 and address_2
+        mid = (len(street_lines) + 1) // 2
+        address_1 = ", ".join(street_lines[:mid])
+        rest_street = street_lines[mid:]
+        if postcode_line_idx != -1:
+            rest_street.append(address_lines[postcode_line_idx])
+        address_2 = ", ".join(rest_street)
+    else:
+        # Generic fallback
+        address_1 = ", ".join(address_lines[:-1]) if len(address_lines) > 1 else (address_lines[0] if address_lines else "")
+        address_2 = address_lines[-1] if len(address_lines) > 1 else ""
+        
+    mykad_data["address_1"] = address_1.strip(" ,-")
+    mykad_data["address_2"] = address_2.strip(" ,-")
     
     return mykad_data

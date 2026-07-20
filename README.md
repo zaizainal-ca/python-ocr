@@ -59,7 +59,12 @@ This microservice is built using **FastAPI** and **PaddleOCR** to extract inform
         "KUALA LUMPUR CITY CENTRE",
         "50450 KUALA LUMPUR",
         "WILAYAH PERSEKUTUAN KUALA LUMPUR"
-      ]
+      ],
+      "full_address": "123 JALAN AMPANG, KUALA LUMPUR CITY CENTRE, 50450 KUALA LUMPUR, WILAYAH PERSEKUTUAN KUALA LUMPUR",
+      "postcode": "50450",
+      "city": "KUALA LUMPUR CITY CENTRE",
+      "address_1": "123 JALAN AMPANG",
+      "address_2": "KUALA LUMPUR CITY CENTRE, 50450 KUALA LUMPUR"
     }
   }
   ```
