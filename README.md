@@ -238,6 +238,24 @@ sudo systemctl reload nginx
 
 ---
 
+## Production & Performance Optimization Notes
+
+### 1. Memory Management & Uvicorn Workers
+* **Memory Footprint**: Each Uvicorn worker process loads its own copy of the PaddleOCR deep learning model into RAM. A single worker takes approximately **1.5GB to 2.0GB of RAM**.
+* **Worker Recommendation**:
+  * **Low-spec / Shared Servers (e.g., UAT / 4GB RAM with multiple apps)**: Set `--workers 1` in `docker-compose.yml` or the start command to prevent Out-of-Memory (OOM) crashes. Setting 2 or more workers on a crowded UAT server will trigger the OS OOM killer to silently terminate the Uvicorn worker processes during inference, causing `502 Bad Gateway` errors.
+  * **Production Servers (8GB+ RAM)**: You can scale the workers up (e.g., `--workers 2` or `--workers 4`) to handle high concurrency. As a rule of thumb, use `(2 * CPU Cores) + 1` workers, provided the server has at least `2GB * Number of Workers` of available RAM.
+
+### 2. Startup Latency & Cold Starts
+* **Model Initialization**: When the container starts or restarts, PaddleOCR requires about **15 to 20 seconds** to load the models into RAM before Uvicorn starts listening to requests.
+* **502 Bad Gateway during Startup**: Any API or Swagger UI requests sent during this startup phase will return a `502 Bad Gateway` error from Nginx. This is expected behavior; simply wait 20 seconds and refresh the page.
+
+### 3. Nginx Reverse Proxy Configuration Rules
+* **Trailing Slashes**: The trailing slash in `location /python-ocr/` and `proxy_pass http://127.0.0.1:6007/;` is critical. It forces Nginx to strip the `/python-ocr` prefix before routing the request to the container.
+* **Max Upload Size**: The `client_max_body_size 20M;` directive is required. Without it, Nginx will block any uploaded MyKad image file larger than 1MB with a `413 Request Entity Too Large` error.
+
+---
+
 ## Cost Estimation (Based on 1,000 requests/day)
 
 PaddleOCR requires a minimum resource allocation of **2 vCPU and 4GB RAM** to ensure stable inference. Below is a monthly cost breakdown for running this workload at approximately **1,000 requests/day** (30,000 requests/month):

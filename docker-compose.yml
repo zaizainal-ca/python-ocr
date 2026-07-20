@@ -1,6 +1,7 @@
 services:
   python-ocr:
     container_name: rp-python-ocr-app
+    image: rp-python-ocr-image
     platform: linux/amd64
     build: .
     ports:
