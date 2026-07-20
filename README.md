@@ -186,28 +186,26 @@ You can use **Jenkins** to automate the build and deployment process to your EC2
 3. In the **Build Steps** section, choose **Execute shell** and enter the following script:
 
    ```bash
-   # 1. Stop and remove the existing container if it is running
-   if [ "$(docker ps -aq -f name=rp-python-ocr-app)" ]; then
-       echo "Stopping and removing existing container..."
-       docker stop rp-python-ocr-app
-       docker rm rp-python-ocr-app
-   fi
+   # 1. Ensure target directory exists on the EC2 server
+   ssh ubuntu@$SERVER_IP "cd /home/ubuntu/; mkdir -p rp-cam-project"
 
-   # 2. Build a new Docker image from the Dockerfile
-   echo "Building new image..."
-   docker build -t rp-python-ocr-app .
+   # 2. Sync project files to the target EC2 server via Rsync
+   rsync -ravzg \
+       --groupmap=*:www-data \
+       --cvs-exclude \
+       --delete-after \
+       --exclude .vscode/ \
+       --exclude .git/ \
+       --exclude venv/ \
+       --exclude __pycache__/ \
+       -e ssh \
+       ./ \
+       ubuntu@$SERVER_IP:/home/ubuntu/rp-cam-project/rp-python-ocr/;
 
-   # 3. Run the new container in the background (port 6007, auto-restart)
-   echo "Running new container..."
-   docker run -d -p 6007:8000 \
-       --name rp-python-ocr-app \
-       --restart unless-stopped \
-       -e PYTHONUNBUFFERED=1 \
-       rp-python-ocr-app
-
-   # 4. Clean up old dangling images to prevent the EC2 disk from filling up
-   echo "Cleaning up dangling images..."
-   docker image prune -f
+   # 3. Build and run the container using docker-compose on the UAT server
+   ssh ubuntu@$SERVER_IP "cd /home/ubuntu/rp-cam-project/rp-python-ocr; \
+           docker compose up -d --build --force-recreate python-ocr; \
+           docker image prune -f;"
    ```
 
 #### Nginx Reverse Proxy Configuration
