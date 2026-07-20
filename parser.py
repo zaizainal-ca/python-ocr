@@ -78,16 +78,16 @@ def parse_mykad(ocr_result):
     ]
     
     ignore_keywords = [
-        "kad", "mykad", "malaysia", "warganegara", "islam", "lelaki", "perempuan", 
+        "kad", "mykad", "malaysia", "warganegara", "islam", "lelaki", "perempuan", "lela", "peremp",
         "identity", "card", "pemsensyan", "dentitly", "mmala", "warganegaha", "isnam"
     ]
 
     # Extract single-field attributes
     for text in detected_texts:
-        clean_text = text.upper()
-        if "LELAKI" in clean_text:
+        clean_text = text.upper().strip()
+        if "LELAKI" in clean_text or clean_text == "LELA":
             mykad_data["gender"] = "LELAKI"
-        elif "PEREMPUAN" in clean_text:
+        elif "PEREMPUAN" in clean_text or clean_text == "PEREMP":
             mykad_data["gender"] = "PEREMPUAN"
             
         if "ISLAM" in clean_text:
@@ -119,11 +119,13 @@ def parse_mykad(ocr_result):
         if clean_text in ["LELAKI", "PEREMPUAN", "ISLAM", "WARGANEGARA"]:
             continue
             
-        # Name classification: Uppercase letters, usually first 1-2 lines after IC
-        is_name_pattern = clean_text.replace(" ", "").replace("/", "").isalpha()
+        # Name classification: Uppercase letters, spaces, and punctuation like ', ., -, / (e.g. BIBI' JUHAINAH, MOHD., A/L, A/P)
+        is_name_pattern = bool(re.match(r"^[A-Z\s'\.\-\/]+$", clean_text))
         
         if is_name_pattern and len(potential_name_lines) < 2 and not any(state in clean_text for state in states_list):
-            if not any(addr_kw in clean_text for addr_kw in ["NO", "LOT", "JALAN", "TAMAN", "KAMPUNG", "KG", "KUARTERS"]):
+            # Exclude lines containing common address keywords
+            addr_kws = ["NO", "LOT", "JALAN", "TAMAN", "KAMPUNG", "KG", "KUARTERS", "SEKSYEN", "BANDAR", "BATU", "JLN", "BLOK", "BLOCK", "TINGKAT", "LEBUH"]
+            if not any(addr_kw in clean_text for addr_kw in addr_kws):
                 potential_name_lines.append(text)
                 continue
                 
@@ -205,4 +207,11 @@ def parse_mykad(ocr_result):
     mykad_data["address_1"] = address_1.strip(" ,-")
     mykad_data["address_2"] = address_2.strip(" ,-")
     
+    # 4. Fallback gender from IC Number (Odd last digit = LELAKI, Even last digit = PEREMPUAN)
+    if not mykad_data["gender"] and mykad_data["ic_number"]:
+        clean_ic = mykad_data["ic_number"].replace("-", "").strip()
+        if len(clean_ic) == 12 and clean_ic.isdigit():
+            last_digit = int(clean_ic[-1])
+            mykad_data["gender"] = "LELAKI" if last_digit % 2 != 0 else "PEREMPUAN"
+            
     return mykad_data
