@@ -1,5 +1,6 @@
 services:
   python-ocr:
+    container_name: rp-python-ocr-app
     platform: linux/amd64
     build: .
     ports:
@@ -8,4 +9,4 @@ services:
       - .:/app
     environment:
       - PYTHONUNBUFFERED=1
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2 --root-path /python-ocr
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2
