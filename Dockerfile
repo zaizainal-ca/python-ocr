@@ -21,5 +21,5 @@ COPY . .
 # Expose FastAPI port
 EXPOSE 8000
 
-# Start FastAPI server with 2 workers for concurrency
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+# Start FastAPI server with 2 workers and root-path for reverse proxy
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--root-path", "/python-ocr"]
