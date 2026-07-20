@@ -169,7 +169,11 @@ You can use **Jenkins** to automate the build and deployment process to your EC2
 
 **Jenkins Configuration Steps:**
 1. Create a new project of type **Freestyle project**.
-2. In the **Source Code Management** section, connect it to this project's Git repository.
+2. In the **Source Code Management** section:
+   * Select **Git**.
+   * **Repository URL**: `https://github.com/zaizainal-ca/python-ocr.git`
+   * **Credentials**: Add or select your GitHub credentials/token.
+   * **Branch Specifier**: Set to `*/main` (instead of `*/master`).
 3. In the **Build Steps** section, choose **Execute shell** and enter the following script:
    ```bash
    # 1. Stop and remove the existing container if it is running
