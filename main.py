@@ -21,7 +21,7 @@ app.add_middleware(
 
 # Load the PaddleOCR model once during server start (cached)
 print("Loading PaddleOCR models...")
-ocr = PaddleOCR(use_angle_cls=True, lang="en")  # Uses english detection & recognition (excellent for MyKad)
+ocr = PaddleOCR(use_angle_cls=True, lang="en", enable_mkldnn=False)  # Uses english detection & recognition (excellent for MyKad)
 
 @app.post("/api/ocr/mykad")
 async def ocr_mykad(file: UploadFile = File(...)):
