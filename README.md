@@ -177,23 +177,23 @@ You can use **Jenkins** to automate the build and deployment process to your EC2
 3. In the **Build Steps** section, choose **Execute shell** and enter the following script:
    ```bash
    # 1. Stop and remove the existing container if it is running
-   if [ "$(docker ps -aq -f name=mykad-ocr-app)" ]; then
+   if [ "$(docker ps -aq -f name=rp-python-ocr-app)" ]; then
        echo "Stopping and removing existing container..."
-       docker stop mykad-ocr-app
-       docker rm mykad-ocr-app
+       docker stop rp-python-ocr-app
+       docker rm rp-python-ocr-app
    fi
 
    # 2. Build a new Docker image from the Dockerfile
    echo "Building new image..."
-   docker build -t mykad-ocr-app .
+   docker build -t rp-python-ocr-app .
 
    # 3. Run the new container in the background (port 8000, auto-restart)
    echo "Running new container..."
    docker run -d -p 8000:8000 \
-       --name mykad-ocr-app \
+       --name rp-python-ocr-app \
        --restart unless-stopped \
        -e PYTHONUNBUFFERED=1 \
-       mykad-ocr-app
+       rp-python-ocr-app
 
    # 4. Clean up old dangling images to prevent the EC2 disk from filling up
    echo "Cleaning up dangling images..."
