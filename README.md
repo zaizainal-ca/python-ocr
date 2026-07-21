@@ -20,7 +20,7 @@ This microservice is built using **FastAPI** and **PaddleOCR** to extract inform
    ```
 3. **Access API Docs:**
    Once the container finishes building and is running, you can access the interactive API documentation (Swagger UI) at:
-   - **http://localhost:6007/python-ocr/docs**
+   - **http://localhost:6007/docs**
 
 ---
 
@@ -29,7 +29,7 @@ This microservice is built using **FastAPI** and **PaddleOCR** to extract inform
 ### 1. Health Check
 
 - **Method:** `GET`
-- **Path:** `/python-ocr/health`
+- **Path:** `/health`
 - **Response:**
   ```json
   {
@@ -40,7 +40,7 @@ This microservice is built using **FastAPI** and **PaddleOCR** to extract inform
 ### 2. OCR MyKad
 
 - **Method:** `POST`
-- **Path:** `/python-ocr/api/ocr/mykad`
+- **Path:** `/api/ocr/mykad`
 - **Request (Multipart Form-Data):**
   - `file`: (MyKad image file, e.g., `myic.jpeg`)
 - **Example Successful Response (JSON):**
@@ -209,8 +209,28 @@ You can use **Jenkins** to automate the build and deployment process to your EC2
 
    # 3. Build and run the container using docker-compose on the UAT server
    ssh ubuntu@$SERVER_IP "cd /home/ubuntu/rp-cam-project/rp-python-ocr; \
-           ROOT_PATH=/python-ocr docker compose up -d --build --force-recreate python-ocr; \
+           docker compose up -d --build --force-recreate python-ocr; \
            docker image prune -f;"
+   ```
+
+#### Useful Container Management Commands
+If you need to inspect or manually restart the container on the target EC2 server:
+
+1. **Check Container Status**:
+   ```bash
+   docker ps -a | grep ocr
+   ```
+2. **View Logs (Debugging Crashes & Model Loading)**:
+   ```bash
+   docker logs rp-python-ocr-app
+   ```
+3. **Manually Bring Up / Rebuild Container**:
+   ```bash
+   cd /home/ubuntu/rp-cam-project/rp-python-ocr && docker compose up -d --build
+   ```
+4. **Quick Restart (If Container is Stopped)**:
+   ```bash
+   docker start rp-python-ocr-app
    ```
 
 #### Nginx Reverse Proxy Configuration
