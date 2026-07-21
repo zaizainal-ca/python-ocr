@@ -36,6 +36,12 @@ async def ocr_mykad(file: UploadFile = File(...)):
         # Read image bytes and convert to numpy array format for PaddleOCR
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
+        
+        # Pre-process: Downscale large images (max 1600px) to reduce memory usage and speed up OCR
+        max_dim = 1600
+        if max(image.width, image.height) > max_dim:
+            image.thumbnail((max_dim, max_dim), Image.LANCZOS)
+            
         image_np = np.array(image)
         
         # Run PaddleOCR inference
